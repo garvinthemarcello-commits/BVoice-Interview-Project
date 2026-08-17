@@ -12,7 +12,7 @@ backend/
 │   ├── config/
 │   │   └── env.js         # Centralized environment-variable loader & validator
 │   ├── database/
-│   │   ├── index.js       # SQLite connection singleton (better-sqlite3)
+│   │   ├── index.js       # SQLite connection singleton (sqlite3, Promise-wrapped)
 │   │   ├── schema.sql     # DDL: table definitions
 │   │   └── seed.js        # Seeds the database with sample candidate data
 │   ├── middleware/
@@ -101,7 +101,7 @@ Copy `.env.example` to `.env` and adjust as needed:
 
 - **Node.js** — JavaScript runtime
 - **Express.js** — Web framework
-- **better-sqlite3** — Synchronous SQLite driver (fast & simple)
+- **sqlite3** — SQLite driver, wrapped in Promises for async/await use
 - **helmet** — Security headers
 - **morgan** — HTTP request logging
 - **dotenv** — Environment variable management

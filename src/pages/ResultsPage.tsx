@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import CardRevealSequence from '@/components/CardRevealSequence';
-import type { DivisionKey } from '@/components/CardRevealSequence';
+import type { DivisionKey } from '@/lib/divisions';
 import DivisionSection from '@/components/DivisionSection';
 
 // Total animation runtime before the division grid fades in (matches the

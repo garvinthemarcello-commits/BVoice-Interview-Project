@@ -7,7 +7,6 @@ const app = require('./app');
 const config = require('./config/env');
 
 const server = app.listen(config.port, () => {
-  // eslint-disable-next-line no-console
   console.log(`
   ┌──────────────────────────────────────────────────┐
   │  BVoice Radio API                                │
@@ -20,13 +19,11 @@ const server = app.listen(config.port, () => {
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  // eslint-disable-next-line no-console
   console.log('SIGTERM received — shutting down gracefully…');
   server.close(() => process.exit(0));
 });
 
 process.on('SIGINT', () => {
-  // eslint-disable-next-line no-console
   console.log('SIGINT received — shutting down gracefully…');
   server.close(() => process.exit(0));
 });

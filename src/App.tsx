@@ -4,7 +4,7 @@ import Footer from '@/components/Footer';
 import LandingPage from '@/pages/LandingPage';
 import ResultsPage from '@/pages/ResultsPage';
 import FailResultsPage from '@/pages/FailResultsPage';
-import type { DivisionKey } from '@/components/CardRevealSequence';
+import type { DivisionKey } from '@/lib/divisions';
 
 const VALID_DIVISIONS: DivisionKey[] = [
   'Announcer',
@@ -61,7 +61,7 @@ export default function App() {
         loaded ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
-        fontFamily: "'Poppins', 'Inter', sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         backgroundColor: '#111111',
       }}
     >

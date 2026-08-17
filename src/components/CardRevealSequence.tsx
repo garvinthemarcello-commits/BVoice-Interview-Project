@@ -1,25 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, Megaphone, Palette, Newspaper, Music, Headphones, Radio } from 'lucide-react';
+import { Radio } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-
-// ── Division registry ─────────────────────────────────────────────────────
-
-export type DivisionKey =
-  | 'Announcer'
-  | 'Marketing'
-  | 'Creative'
-  | 'Reporter'
-  | 'Music Lister'
-  | 'Operator';
-
-const DIVISION_META: Record<DivisionKey, { icon: LucideIcon }> = {
-  Announcer:    { icon: Mic        },
-  Marketing:    { icon: Megaphone  },
-  Creative:     { icon: Palette    },
-  Reporter:     { icon: Newspaper  },
-  'Music Lister': { icon: Music    },
-  Operator:     { icon: Headphones },
-};
+import { DIVISION_ICONS } from '@/lib/divisions';
+import type { DivisionKey } from '@/lib/divisions';
 
 // ── Container geometry (vertical tarot cards) ─────────────────────────────
 // BASE_* are the reference design dimensions (desktop at scale = 1).
@@ -187,8 +170,7 @@ export default function CardRevealSequence({ division }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const meta = DIVISION_META[division] ?? DIVISION_META['Marketing'];
-  const Icon = meta.icon;
+  const Icon = DIVISION_ICONS[division] ?? DIVISION_ICONS['Marketing'];
 
   const stageW = BASE_W * scale;
   const stageH = BASE_H * scale;

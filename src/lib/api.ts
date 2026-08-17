@@ -34,3 +34,14 @@ export async function getCandidateByNim(nim: string): Promise<Candidate | null> 
   const body: ApiResponse<Candidate> = await res.json();
   return body.data;
 }
+
+export async function getDivisions(): Promise<Division[]> {
+  const res = await fetch('/api/divisions');
+
+  if (!res.ok) {
+    throw new Error(`Failed to load divisions (${res.status})`);
+  }
+
+  const body: ApiResponse<Division[]> = await res.json();
+  return body.data;
+}

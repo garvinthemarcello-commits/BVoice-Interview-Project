@@ -5,7 +5,6 @@
  * Usage: app.use(errorHandler)  — must be the last middleware.
  */
 function errorHandler(err, req, res, next) {
-  // eslint-disable-next-line no-console
   console.error(`[error] ${err.message}`);
 
   const status = err.status || 500;
