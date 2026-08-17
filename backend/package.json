@@ -1,0 +1,31 @@
+{
+  "name": "bvoice-radio-backend",
+  "version": "1.0.0",
+  "description": "Backend API for BVoice Radio crew candidate results — Node.js, Express, SQLite.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:seed": "node src/database/seed.js"
+  },
+  "keywords": [
+    "express",
+    "sqlite",
+    "nodejs",
+    "api"
+  ],
+  "author": "BVoice Radio",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
