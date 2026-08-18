@@ -17,21 +17,31 @@ const VALID_DIVISIONS: DivisionKey[] = [
 
 type Route =
   | { name: 'home' }
-  | { name: 'results'; division: DivisionKey }
-  | { name: 'result-fail' };
+  | { name: 'results'; division: DivisionKey; candidateName: string }
+  | { name: 'result-fail'; candidateName: string };
 
 function routeFromHash(): Route {
   const h = window.location.hash.replace('#', '');
 
   if (h.startsWith('results/')) {
-    const div = decodeURIComponent(h.slice('results/'.length));
+    const [rawDiv, rawName] = h.slice('results/'.length).split('/');
+    const div = decodeURIComponent(rawDiv ?? '');
     const match = VALID_DIVISIONS.find(
       (d) => d.toLowerCase() === div.toLowerCase(),
     );
-    if (match) return { name: 'results', division: match };
+    if (match) {
+      return {
+        name: 'results',
+        division: match,
+        candidateName: rawName ? decodeURIComponent(rawName) : '',
+      };
+    }
   }
 
-  if (h === 'result-fail') return { name: 'result-fail' };
+  if (h === 'result-fail' || h.startsWith('result-fail/')) {
+    const rawName = h.startsWith('result-fail/') ? h.slice('result-fail/'.length) : '';
+    return { name: 'result-fail', candidateName: rawName ? decodeURIComponent(rawName) : '' };
+  }
 
   return { name: 'home' };
 }
@@ -67,8 +77,8 @@ export default function App() {
     >
       <Navbar />
       {route.name === 'home'        && <LandingPage />}
-      {route.name === 'results'     && <ResultsPage division={route.division} />}
-      {route.name === 'result-fail' && <FailResultsPage />}
+      {route.name === 'results'     && <ResultsPage division={route.division} candidateName={route.candidateName} />}
+      {route.name === 'result-fail' && <FailResultsPage candidateName={route.candidateName} />}
       <Footer />
     </div>
   );

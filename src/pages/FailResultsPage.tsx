@@ -19,7 +19,11 @@ const encouragement = [
   },
 ];
 
-export default function FailResultsPage() {
+interface Props {
+  candidateName: string;
+}
+
+export default function FailResultsPage({ candidateName }: Props) {
   const [hovered, setHovered] = useState(false);
 
   const goHome = () => {
@@ -46,11 +50,17 @@ export default function FailResultsPage() {
             <div className="h-1 w-3 rounded-full bg-white/20" />
           </div>
 
-          <p className="mt-8 text-lg sm:text-xl text-white font-medium leading-relaxed">
+          {candidateName && (
+            <p className="mt-8 text-2xl sm:text-3xl font-extrabold tracking-wide text-white">
+              {candidateName.toUpperCase()}
+            </p>
+          )}
+
+          <p className="mt-4 text-lg sm:text-xl text-white font-medium leading-relaxed">
             Terima kasih telah mengikuti proses interview.
           </p>
           <p className="mt-3 text-base sm:text-lg text-gray-300 leading-relaxed">
-            Sayangnya, kamu{' '}
+            Maaf, kamu{' '}
             <span style={{ color: '#F4B400' }} className="font-bold">
               belum lolos
             </span>{' '}

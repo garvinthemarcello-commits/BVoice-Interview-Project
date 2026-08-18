@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import CardRevealSequence from '@/components/CardRevealSequence';
+import ConfettiBurst from '@/components/ConfettiBurst';
 import type { DivisionKey } from '@/lib/divisions';
 import DivisionSection from '@/components/DivisionSection';
 
@@ -9,10 +10,12 @@ const REVEAL_DURATION_MS = 7300;
 
 interface Props {
   division: DivisionKey;
+  candidateName: string;
 }
 
-export default function ResultsPage({ division }: Props) {
+export default function ResultsPage({ division, candidateName }: Props) {
   const [showDivisions, setShowDivisions] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setShowDivisions(true), REVEAL_DURATION_MS);
@@ -21,6 +24,8 @@ export default function ResultsPage({ division }: Props) {
 
   return (
     <div style={{ backgroundColor: '#111111', minHeight: '100vh' }}>
+      {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+
       {/* Header + card reveal */}
       <section className="pt-28 pb-12 px-6" style={{ backgroundColor: '#111111' }}>
         <div className="max-w-5xl mx-auto text-center">
@@ -38,7 +43,13 @@ export default function ResultsPage({ division }: Props) {
             <div className="h-1 w-3 rounded-full bg-white/20" />
           </div>
 
-          <p className="mt-8 text-lg sm:text-xl text-white font-medium leading-relaxed">
+          {candidateName && (
+            <p className="mt-8 text-2xl sm:text-3xl font-extrabold tracking-wide" style={{ color: '#34D399' }}>
+              SELAMAT {candidateName.toUpperCase()}!
+            </p>
+          )}
+
+          <p className="mt-4 text-lg sm:text-xl text-white font-medium leading-relaxed">
             Selamat, Kamu{' '}
             <span style={{ color: '#34D399' }} className="font-extrabold tracking-wide">
               LOLOS
@@ -52,7 +63,10 @@ export default function ResultsPage({ division }: Props) {
           className="max-w-5xl mx-auto mt-10"
           style={{ animation: 'fadeInUp 0.7s ease both' }}
         >
-          <CardRevealSequence division={division} />
+          <CardRevealSequence
+            division={division}
+            onRevealComplete={() => setShowConfetti(true)}
+          />
         </div>
       </section>
 

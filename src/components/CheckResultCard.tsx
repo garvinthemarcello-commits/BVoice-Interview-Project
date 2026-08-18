@@ -28,10 +28,12 @@ export default function CheckResultCard() {
         return;
       }
 
+      const encodedName = encodeURIComponent(candidate.name ?? '');
+
       if (candidate.status === 'passed' && candidate.division) {
-        window.location.hash = `results/${encodeURIComponent(candidate.division.name)}`;
+        window.location.hash = `results/${encodeURIComponent(candidate.division.name)}/${encodedName}`;
       } else {
-        window.location.hash = 'result-fail';
+        window.location.hash = `result-fail/${encodedName}`;
       }
       window.scrollTo({ top: 0 });
     } catch {
