@@ -1,13 +1,6 @@
 # BVoice Radio — Interview Results Site
 
-A results-lookup site for BVoice Radio crew candidates. A candidate enters their
-NIM (student ID), the frontend asks the backend API whether they passed, and —
-if they did — a tarot-card-style GSAP reveal animation shows which division
-they were placed into.
 
-This is a presentation/school project (originally scaffolded with Bolt AI),
-not a production deployment: seed data is fake, and there is no auth layer in
-front of the API.
 
 ## Architecture Overview
 
