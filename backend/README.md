@@ -1,6 +1,6 @@
-# BVoice Radio — Backend API
+# Project Interview IT WEB
 
-A RESTful API for managing crew-candidate interview results, built with **Node.js**, **Express.js**, and **SQLite**.
+A RESTful API for managing cacrew interview results, built with **Node.js**, **Express.js**, and **SQLite**.
 
 ## Folder Structure
 
