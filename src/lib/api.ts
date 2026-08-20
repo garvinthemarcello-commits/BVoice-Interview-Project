@@ -1,6 +1,7 @@
 /**
  * Lightweight API client for the BVoice backend.
- * Uses the Vite dev-server proxy (/api -> http://localhost:5000) in dev.
+ * Calls the /api/* Vercel serverless functions, same-origin in both
+ * `vercel dev` and production.
  */
 
 export interface Division {

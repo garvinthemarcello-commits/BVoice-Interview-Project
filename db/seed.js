@@ -1,10 +1,29 @@
 /**
- * Seeds the database with divisions and sample candidates.
+ * Applies the schema and seeds divisions + sample candidates.
  * Run with: npm run db:seed
+ * Requires POSTGRES_URL (or DATABASE_URL) in the environment.
  */
 
-const db = require('./index');
-const { query } = require('./index');
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import pg from 'pg';
+
+const { Pool } = pg;
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error('Missing POSTGRES_URL (or DATABASE_URL) environment variable.');
+  process.exitCode = 1;
+  process.exit();
+}
+
+const pool = new Pool({
+  connectionString,
+  ssl: connectionString.includes('sslmode=') ? undefined : { rejectUnauthorized: false },
+});
 
 const DIVISIONS = [
   { name: 'Announcer',    description: 'The voice behind the mic — bringing energy and stories to every broadcast.' },
@@ -76,36 +95,35 @@ const CANDIDATES = [
 ];
 
 async function seed() {
-  console.log('Seeding database…');
+  console.log('Applying schema…');
+  const schemaSql = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
+  await pool.query(schemaSql);
 
-  await query.run('DELETE FROM candidates');
-  await query.run('DELETE FROM divisions');
+  console.log('Seeding database…');
+  await pool.query('DELETE FROM candidates');
+  await pool.query('DELETE FROM divisions');
 
   for (const d of DIVISIONS) {
-    await query.run(
-      'INSERT INTO divisions (name, description) VALUES (?, ?)',
-      [d.name, d.description],
-    );
+    await pool.query('INSERT INTO divisions (name, description) VALUES ($1, $2)', [d.name, d.description]);
   }
 
   const divisionByName = async (name) => {
     if (!name) return null;
-    const row = await query.get('SELECT id FROM divisions WHERE name = ?', [name]);
-    return row ? row.id : null;
+    const { rows } = await pool.query('SELECT id FROM divisions WHERE name = $1', [name]);
+    return rows[0] ? rows[0].id : null;
   };
 
   for (const c of CANDIDATES) {
     const divisionId = await divisionByName(c.divisionName);
-    await query.run(
+    await pool.query(
       `INSERT INTO candidates
          (nim, full_name, email, phone_number, division_id, passed, interview_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [c.nim, c.full_name, c.email, c.phone, divisionId, c.passed ? 1 : 0, c.interviewDate],
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [c.nim, c.full_name, c.email, c.phone, divisionId, c.passed, c.interviewDate],
     );
   }
 
   console.log(`Seeded ${DIVISIONS.length} divisions and ${CANDIDATES.length} candidates.`);
-  console.log('Done.');
 }
 
 seed()
@@ -113,4 +131,4 @@ seed()
     console.error('Seed failed:', err.message);
     process.exitCode = 1;
   })
-  .finally(() => db.close());
+  .finally(() => pool.end());

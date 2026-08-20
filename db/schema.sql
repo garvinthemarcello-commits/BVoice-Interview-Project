@@ -1,31 +1,29 @@
--- BVoice Radio — Database Schema
+-- BVoice Radio — Database Schema (Postgres)
 -- Tables: divisions, candidates
 
 -- ── Divisions ────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS divisions (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  name        TEXT    NOT NULL UNIQUE,
-  description TEXT    NOT NULL,
-  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  id          SERIAL PRIMARY KEY,
+  name        TEXT        NOT NULL UNIQUE,
+  description TEXT        NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ── Candidates ───────────────────────────────────────────────────────────
 -- Normalized: division references the divisions table via foreign key.
 
 CREATE TABLE IF NOT EXISTS candidates (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  nim            TEXT    NOT NULL UNIQUE,
-  full_name      TEXT    NOT NULL,
+  id             SERIAL PRIMARY KEY,
+  nim            TEXT        NOT NULL UNIQUE,
+  full_name      TEXT        NOT NULL,
   email          TEXT,
   phone_number   TEXT,
-  division_id    INTEGER,
-  passed         INTEGER NOT NULL DEFAULT 0 CHECK (passed IN (0, 1)),
-  interview_date TEXT,
-  created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
-  updated_at     TEXT    NOT NULL DEFAULT (datetime('now')),
-
-  FOREIGN KEY (division_id) REFERENCES divisions (id)
+  division_id    INTEGER     REFERENCES divisions (id),
+  passed         BOOLEAN     NOT NULL DEFAULT false,
+  interview_date TIMESTAMPTZ,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Helpful indexes for common lookups

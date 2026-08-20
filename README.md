@@ -6,22 +6,18 @@
 
 ```
 ┌─────────────────────┐        HTTP (fetch)        ┌─────────────────────┐        SQL         ┌──────────────────┐
-│      Frontend        │  ───────────────────────▶  │      Backend API     │  ───────────────▶  │     Database       │
-│  React + TypeScript  │   GET /api/candidates/:nim │  Node.js + Express   │   sqlite3 driver   │  SQLite (file)     │
-│  Vite + Tailwind     │  ◀───────────────────────  │                       │  ◀───────────────  │  candidates,       │
+│      Frontend        │  ───────────────────────▶  │   API (serverless)   │  ───────────────▶  │     Database       │
+│  React + TypeScript  │   GET /api/candidates/:nim │  Vercel functions     │   pg driver        │  Postgres           │
+│  Vite + Tailwind     │  ◀───────────────────────  │  (Node.js)             │  ◀───────────────  │  candidates,       │
 │  GSAP animations      │      JSON { success, data }│                       │   rows / joins      │  divisions tables  │
 └─────────────────────┘                             └─────────────────────┘                     └──────────────────┘
-        │                                                      │
-        │ dev: Vite proxy rewrites /api  ─────────────────────▶│ listens on :5000
-        │      requests to http://localhost:5000                │
-        ▼                                                      ▼
-   http://localhost:5173                                 backend/data/bvoice.db
 ```
 
-In development, the Vite dev server (port `5173`) proxies any request to
-`/api/*` straight through to the Express server on port `5000`
-(`vite.config.ts`), so the frontend never needs to know the backend's real
-host — it just calls relative paths like `/api/candidates/123`.
+Frontend and API are one Vercel project: the React app is a static build, and
+each file under `api/` becomes its own serverless function. Everything is
+same-origin, so the frontend just calls relative paths like
+`/api/candidates/123` in both `vercel dev` and production — no proxy, no CORS
+config needed.
 
 ## Tech Stack
 
@@ -29,8 +25,8 @@ host — it just calls relative paths like `/api/candidates/123`.
 | --------- | ---------------------------------------------------------------------- |
 | Frontend  | React 18, TypeScript, Vite, Tailwind CSS, GSAP (animations), lucide-react (icons) |
 | API       | REST over HTTP, JSON, hand-rolled `fetch` client (no external HTTP lib) |
-| Backend   | Node.js, Express 4, Helmet (security headers), CORS, Morgan (logging)  |
-| Database  | SQLite (file-based), raw SQL via the `sqlite3` driver with a small Promise wrapper |
+| Backend   | Vercel serverless functions (Node.js), one file per route             |
+| Database  | Postgres (Neon / Vercel Postgres / Supabase), raw SQL via the `pg` driver |
 
 ## Project Structure
 
@@ -40,7 +36,7 @@ gsapworking/
 │   ├── App.tsx                       # Hash-based router + top-level layout
 │   ├── main.tsx                      # React entry point
 │   ├── lib/
-│   │   ├── api.ts                    # API client — fetch wrapper for the backend
+│   │   ├── api.ts                    # API client — fetch wrapper for /api/*
 │   │   └── useScrollReveal.ts        # Scroll-triggered reveal animation hook
 │   ├── pages/
 │   │   ├── LandingPage.tsx           # Hero + division info + contact
@@ -54,22 +50,24 @@ gsapworking/
 │       ├── DivisionSection.tsx       # Division grid (Announcer, Marketing, …)
 │       └── ContactPerson.tsx
 │
-├── backend/                          # Backend (Node.js + Express)
-│   ├── src/
-│   │   ├── server.js                 # HTTP entry point — starts the listener
-│   │   ├── app.js                    # Express app: middleware, routing, error handling
-│   │   ├── config/env.js             # Loads & validates environment variables
-│   │   ├── routes/                   # index.js aggregates candidateRoutes + divisionRoutes under /api
-│   │   ├── controllers/              # candidateController.js, divisionController.js — query DB, shape responses
-│   │   ├── middleware/               # requestLogger, notFound (404), errorHandler
-│   │   ├── utils/asyncHandler.js     # Wraps async route handlers so thrown errors reach errorHandler
-│   │   └── database/
-│   │       ├── index.js              # SQLite connection + Promise-based query helpers (all/get/run)
-│   │       ├── schema.sql            # Table DDL (divisions, candidates)
-│   │       └── seed.js               # Populates divisions + sample candidates
-│   └── data/bvoice.db                # SQLite database file (created/used at runtime)
+├── api/                               # Backend (Vercel serverless functions)
+│   ├── health.js                     # GET /api/health
+│   ├── divisions/
+│   │   ├── index.js                  # GET /api/divisions
+│   │   └── [id].js                   # GET /api/divisions/:id
+│   ├── candidates/
+│   │   ├── index.js                  # GET /api/candidates
+│   │   └── [nim].js                  # GET /api/candidates/:nim
+│   └── _lib/                         # Shared code (not routable — underscore prefix)
+│       ├── db.js                     # Postgres pool + Promise-based query helpers (all/get/run)
+│       ├── candidates.js             # Shared SELECT + row-mapping for the candidates resource
+│       └── http.js                   # methodGuard / notFound / serverError response helpers
 │
-└── vite.config.ts                    # Dev server + /api proxy to http://localhost:5000
+├── db/
+│   ├── schema.sql                    # Table DDL (divisions, candidates)
+│   └── seed.js                       # Applies schema.sql, then populates divisions + sample candidates
+│
+└── vite.config.ts                    # Vite build config (no dev proxy needed — same-origin)
 ```
 
 ## Frontend
@@ -94,15 +92,13 @@ directly (`routeFromHash`) and re-renders on `hashchange`. Three routes exist:
 
 ## API Layer
 
-All endpoints are mounted under `/api` (see `backend/src/routes/index.js`) and
-respond with a consistent envelope: `{ success: boolean, data: ... }` (list
-endpoints also include `count`). Errors follow the same shape via
-`middleware/errorHandler.js`, with the HTTP status set from `err.status`
-(defaults to `500`).
+Every endpoint responds with a consistent envelope: `{ success: boolean, data: ... }`
+(list endpoints also include `count`); errors follow `{ success: false, error: { message, code } }`,
+via the `notFound` / `serverError` helpers in `api/_lib/http.js`.
 
 | Method | Endpoint                | Description                                  |
 | ------ | ------------------------ | --------------------------------------------- |
-| GET    | `/api/health`            | Liveness check — status, timestamp, uptime    |
+| GET    | `/api/health`            | Liveness check — status, timestamp            |
 | GET    | `/api/candidates`        | List all candidates, joined with their division |
 | GET    | `/api/candidates/:nim`   | Look up a single candidate by NIM (404 if not found) |
 | GET    | `/api/divisions`         | List all divisions                            |
@@ -127,38 +123,35 @@ Example — `GET /api/candidates/123`:
 }
 ```
 
-The database stores `full_name` / `passed` (0 or 1) / `division_id`, but
-`candidateController.mapRow()` translates that into the public shape above
-(`name`, `status: 'passed' | 'failed'`, nested `division` object) so the
-frontend's contract stays stable regardless of internal schema changes.
+The database stores `full_name` / `passed` (boolean) / `division_id`, but
+`mapCandidateRow()` (`api/_lib/candidates.js`) translates that into the public
+shape above (`name`, `status: 'passed' | 'failed'`, nested `division` object)
+so the frontend's contract stays stable regardless of internal schema changes.
 
 ## Backend
 
-Request flow through `backend/src/app.js`:
+Each route is an independent serverless function — there's no shared server
+process or middleware chain. A request to e.g. `/api/candidates/123` is routed
+by Vercel directly to `api/candidates/[nim].js`, which:
 
 ```
-request
-  → helmet (security headers)
-  → cors (restricts origin to CLIENT_ORIGIN)
-  → express.json / urlencoded (body parsing)
-  → requestLogger (morgan)
-  → /api routes  → router (routes/*.js) → controller (controllers/*.js) → database/index.js query()
-  → notFound (unmatched routes → 404)
-  → errorHandler (uncaught / thrown errors → JSON error response)
+handler(req, res)
+  → methodGuard (only GET allowed → 405 otherwise)
+  → query.get() from api/_lib/db.js (Postgres pool)
+  → mapCandidateRow() shapes the response
+  → notFound() (404) or serverError() (500) on failure
 ```
 
-Controllers never touch the `sqlite3` driver directly — they call the
-`query.all / query.get / query.run` helpers exported from
-`database/index.js`, which wrap the callback-based `sqlite3` API in Promises
-so route handlers can use plain `async/await`. Route handlers are wrapped in
-`asyncHandler`, which forwards any rejected promise to Express's error
-pipeline instead of requiring a `try/catch` in every controller.
+Files and folders under `api/_lib/` are not routable — the leading underscore
+tells Vercel to treat them as shared code rather than an endpoint, which is
+where the Postgres connection pool, query helpers, and response helpers live.
 
 ## Database
 
-SQLite, file-based, stored at `backend/data/bvoice.db` (auto-created on first
-run via `initSchema()` in `database/index.js`, which executes `schema.sql`).
-WAL journal mode and foreign keys are enabled via `PRAGMA` on connect.
+Postgres — connect via `POSTGRES_URL` (or `DATABASE_URL`), read by
+`api/_lib/db.js` and `db/seed.js`. Any Postgres host works (Neon, Vercel
+Postgres, Supabase); the connection pool is created lazily and reused across
+warm invocations of the same function.
 
 **Schema:**
 
@@ -171,46 +164,48 @@ divisions                          candidates
 │ created_at          │             │ full_name                │
 └───────────────────┘              │ email                    │
                                     │ phone_number              │
-                                    │ passed (0/1)               │
+                                    │ passed (boolean)           │
                                     │ interview_date             │
                                     │ created_at / updated_at    │
                                     └────────────────────────┘
 ```
 
 - `candidates.division_id` is a nullable FK to `divisions.id` — a rejected
-  candidate (`passed = 0`) has `division_id = NULL`.
+  candidate (`passed = false`) has `division_id = NULL`.
 - Indexes exist on `candidates.nim`, `candidates.division_id`, and
   `candidates.passed` for fast lookups (the NIM lookup is the hot path).
-- `backend/src/database/seed.js` (`npm run db:seed`) wipes and repopulates
-  both tables with the 6 fixed divisions and ~40 fake Indonesian candidate
-  records (mixed passed/failed) for demo/testing purposes. A few short NIMs
-  (`123`, `999`, `1234`, …) are kept at the top of the seed list for quick
-  manual testing.
+- `db/seed.js` (`npm run db:seed`) applies `schema.sql`, then wipes and
+  repopulates both tables with the 6 fixed divisions and ~40 fake Indonesian
+  candidate records (mixed passed/failed) for demo/testing purposes. A few
+  short NIMs (`123`, `999`, `1234`, …) are kept at the top of the seed list
+  for quick manual testing.
 
 ## Running Locally
 
-**Backend** (port `5000`):
-```bash
-cd backend
-npm install
-cp .env.example .env      # adjust PORT / CLIENT_ORIGIN if needed
-npm run db:seed           # populate sample data (optional but recommended)
-npm run dev                # starts with nodemon auto-reload
-```
-
-**Frontend** (port `5173`, proxies `/api` to the backend above):
 ```bash
 npm install
-npm run dev
+cp .env.example .env      # set POSTGRES_URL to a Postgres instance (e.g. a free Neon project)
+npm run db:seed           # apply schema + populate sample data
+npx vercel dev             # runs the Vite frontend AND the /api functions together
 ```
 
-Then open `http://localhost:5173` and try NIM `123` (passed → Marketing) or
+Then open the printed local URL and try NIM `123` (passed → Marketing) or
 `999` (failed) from the seed data.
 
-### Environment Variables (backend)
+> `npm run dev` (plain Vite) still works for frontend-only styling/animation
+> work, but `/api/*` calls will 404 since Vite alone doesn't run the
+> serverless functions — use `vercel dev` whenever you need working API calls.
 
-| Variable        | Description                              | Default                  |
-| ---------------- | ----------------------------------------- | ------------------------- |
-| `PORT`           | Port the Express server listens on        | `5000`                    |
-| `NODE_ENV`       | `development` / `production`              | `development`              |
-| `CLIENT_ORIGIN`  | Allowed CORS origin for the frontend       | `http://localhost:5173`    |
+### Environment Variables
+
+| Variable       | Description                                          |
+| -------------- | ----------------------------------------------------- |
+| `POSTGRES_URL` | Postgres connection string (used by `api/` functions and `db/seed.js`) |
+
+## Deploying
+
+Push to GitHub, then import the repo in Vercel (vercel.com → New Project).
+Vercel auto-detects the Vite build and the `api/` functions — no extra
+config needed. Add `POSTGRES_URL` under the project's Environment Variables
+before the first deploy, then run `npm run db:seed` once (locally, pointed
+at the same `POSTGRES_URL`) to populate the live database.
