@@ -1,6 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { Radio } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DIVISION_ICONS } from '@/lib/divisions';
 import type { DivisionKey } from '@/lib/divisions';
@@ -110,28 +109,39 @@ export default function CardRevealSequence({ division, onRevealComplete }: Props
     const ctx = gsap.context(() => {
       const shuffleRounds = makeShuffleRounds(5);
       const tl = gsap.timeline();
+      const centerPx = slotPx(CENTER_RATIO);
 
-      // Starting state: each card sits in its home slot, hidden.
+      // Starting state: cards sit in a fanned stack at center, hidden.
       gsap.set(refs, {
-        x:      (i: number) => slotPx(SLOTS_RATIO[i]).x,
-        y:      (i: number) => slotPx(SLOTS_RATIO[i]).y,
-        rotation: 0,
+        x:      (i: number) => centerPx.x + (i - 2.5) * 3,
+        y:      (i: number) => centerPx.y + (i - 2.5) * -2,
+        rotation: (i: number) => (i - 2.5) * 2.2,
         scale:  1,
         opacity: 0,
         zIndex: (i: number) => i + 1,
       });
 
-      // Phase 1 – fade cards in one by one
-      tl.to(refs, { opacity: 1, duration: 0.5, stagger: 0.15 }, 0);
+      // Phase 0 – the fanned deck materializes at center
+      tl.to(refs, { opacity: 1, duration: 0.4, stagger: 0.05 }, 0);
+
+      // Phase 1 – deal the stack out to the 6 grid slots
+      tl.to(refs, {
+        x: (i: number) => slotPx(SLOTS_RATIO[i]).x,
+        y: (i: number) => slotPx(SLOTS_RATIO[i]).y,
+        rotation: 0,
+        duration: 0.55,
+        stagger: 0.09,
+        ease: 'power2.out',
+      }, 0.45);
 
       // Phase 2 – shuffle rounds (with a gentle tilt for a tarot-riffle feel)
       shuffleRounds.forEach((round, ri) => {
-        const t = 1.15 + ri * 0.8;
+        const t = 1.55 + ri * 0.68;
         tl.to(refs, {
           x: (i: number) => slotPx(SLOTS_RATIO[round[i]]).x,
           y: (i: number) => slotPx(SLOTS_RATIO[round[i]]).y,
           rotation: () => Math.round(Math.random() * 6) - 3,
-          duration: 0.68,
+          duration: 0.58,
           ease: 'power2.inOut',
         }, t);
         tl.set(refs, {
@@ -139,13 +149,12 @@ export default function CardRevealSequence({ division, onRevealComplete }: Props
         }, t);
       });
 
-      const afterShuffle = 1.15 + shuffleRounds.length * 0.8;
+      const afterShuffle = 1.55 + shuffleRounds.length * 0.68;
 
       // Phase 3 – settle the tilt back to flat
       tl.to(refs, { rotation: 0, duration: 0.45, ease: 'power2.out' }, afterShuffle + 0.25);
 
       // Phase 4 – select the drawn card, lift it to center & scale up
-      const centerPx = slotPx(CENTER_RATIO);
       tl.to(refs[SELECTED_ID], {
         x: centerPx.x,
         y: centerPx.y,
@@ -270,7 +279,7 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
           position: 'relative',
         }}
       >
-        {/* Front – tarot card back */}
+        {/* Front – simple playing-card back */}
         <div
           style={{
             ...faceStyle,
@@ -280,11 +289,9 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
             boxShadow: shadow,
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
-            flexDirection: 'column',
-            padding: '10px 8px',
           }}
         >
-          {/* inner frame */}
+          {/* outer inset line */}
           <div
             style={{
               position: 'absolute',
@@ -294,29 +301,34 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
               pointerEvents: 'none',
             }}
           />
-          {/* top label */}
-          <span style={tarotLabelStyle}>BVOICE</span>
+          {/* inner inset line + crosshatch texture */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 12,
+              border: '1px solid rgba(244,180,0,0.14)',
+              borderRadius: 5,
+              backgroundImage:
+                'repeating-linear-gradient(45deg, rgba(244,180,0,0.07) 0px, rgba(244,180,0,0.07) 1px, transparent 1px, transparent 9px), ' +
+                'repeating-linear-gradient(-45deg, rgba(244,180,0,0.07) 0px, rgba(244,180,0,0.07) 1px, transparent 1px, transparent 9px)',
+              pointerEvents: 'none',
+            }}
+          />
 
-          {/* center emblem */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: '50%',
-                border: '1.5px solid rgba(244,180,0,0.5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Radio size={22} style={{ color: '#F4B400', opacity: 0.85 }} strokeWidth={1.5} />
-            </div>
-            <div style={{ width: 26, height: 1, backgroundColor: 'rgba(244,180,0,0.4)' }} />
-          </div>
-
-          {/* bottom label */}
-          <span style={tarotLabelStyle}>RADIO</span>
+          {/* corner wordmark */}
+          <span
+            style={{
+              position: 'absolute',
+              bottom: 8,
+              right: 10,
+              fontSize: 6.5,
+              fontWeight: 600,
+              letterSpacing: '0.03em',
+              color: 'rgba(244,180,0,0.55)',
+            }}
+          >
+            BVoice Radio
+          </span>
         </div>
 
         {/* Back – revealed division result */}
