@@ -50,7 +50,7 @@ gsapworking/
 │       ├── Navbar.tsx / Footer.tsx
 │       ├── Hero.tsx                  # Landing hero section
 │       ├── CheckResultCard.tsx       # NIM input form, calls the API client
-│       ├── CardRevealSequence.tsx    # GSAP tarot-card shuffle/flip reveal animation
+│       ├── CardRevealSequence.tsx    # GSAP shuffle animation
 │       ├── DivisionSection.tsx       # Division grid (Announcer, Marketing, …)
 │       └── ContactPerson.tsx
 │
