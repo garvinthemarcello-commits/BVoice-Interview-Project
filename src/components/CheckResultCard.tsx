@@ -74,7 +74,7 @@ export default function CheckResultCard() {
               setNim(e.target.value);
               setError('');
             }}
-            placeholder="e.g. 123"
+            placeholder="NIM"
             className="w-full bg-white rounded-xl px-4 py-3 text-sm font-medium placeholder-gray-400 outline-none transition-all duration-200"
             style={{ color: '#1B3A5C' }}
             onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(46,125,91,0.35)')}

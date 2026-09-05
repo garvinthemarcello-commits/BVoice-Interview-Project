@@ -43,7 +43,7 @@ export default function FailResultsPage({ candidateName }: Props) {
             Interview Outcome
           </p>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight" style={{ color: '#1B3A5C' }}>
-            HASIL
+            RESULTS
           </h1>
           <div className="mt-6 flex items-center justify-center gap-2">
             <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: '#FF6B4A' }} />

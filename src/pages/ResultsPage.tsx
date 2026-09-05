@@ -50,11 +50,11 @@ export default function ResultsPage({ division, candidateName }: Props) {
           )}
 
           <p className="mt-4 text-lg sm:text-xl font-medium leading-relaxed" style={{ color: '#1B3A5C' }}>
-            Selamat, Kamu{' '}
+            Kamu{' '}
             <span style={{ color: '#2E7D5B' }} className="font-extrabold tracking-wide">
               LOLOS
             </span>{' '}
-            skill Interview sebagai...
+            Interview sebagai...
           </p>
         </div>
 
