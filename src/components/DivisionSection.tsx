@@ -1,56 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useScrollReveal } from '@/lib/useScrollReveal';
-import { iconForDivision } from '@/lib/divisions';
-import { getDivisions } from '@/lib/api';
-import type { Division } from '@/lib/api';
+import { DIVISIONS, DIVISION_ICONS } from '@/lib/divisions';
 
 export default function DivisionSection() {
-  const [divisions, setDivisions] = useState<Division[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    getDivisions()
-      .then((data) => {
-        if (!cancelled) setDivisions(data);
-      })
-      .catch(() => {
-        // Presentation-only site: if the API is unreachable, just skip the grid.
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   return (
     <section
       id="division"
-      className="py-24 px-6"
-      style={{ backgroundColor: '#111111' }}
+      className="py-24 px-6 sand-texture"
+      style={{ background: 'linear-gradient(180deg, #F2D9A8 0%, #E7C083 100%)' }}
     >
       <div className="max-w-6xl mx-auto">
         {/* Title */}
         <div className="text-center mb-16">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#F4B400' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#2E7D5B' }}>
             Our Teams
           </p>
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+          <h2 className="font-display text-4xl sm:text-5xl tracking-tight" style={{ color: '#1B3A5C' }}>
             DIVISION
           </h2>
           <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="h-1 w-10 rounded-full" style={{ backgroundColor: '#F4B400' }} />
-            <div className="h-1 w-2 rounded-full bg-white/20" />
+            <div className="h-1.5 w-10 rounded-full" style={{ backgroundColor: '#FF6B4A' }} />
+            <div className="h-1.5 w-2 rounded-full" style={{ backgroundColor: '#1B3A5C', opacity: 0.2 }} />
           </div>
         </div>
 
-        {/* Grid — only mounted once data has loaded, so the scroll-reveal
-            animation's selector query finds the cards. */}
-        {divisions.length > 0 && <DivisionGrid divisions={divisions} />}
+        <DivisionGrid />
       </div>
     </section>
   );
 }
 
-function DivisionGrid({ divisions }: { divisions: Division[] }) {
+function DivisionGrid() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const gridRef = useScrollReveal<HTMLDivElement>({
     staggerSelector: '[data-division-card]',
@@ -61,44 +41,44 @@ function DivisionGrid({ divisions }: { divisions: Division[] }) {
 
   return (
     <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {divisions.map((div, idx) => {
-        const Icon = iconForDivision(div.name);
+      {DIVISIONS.map((div, idx) => {
+        const Icon = DIVISION_ICONS[div.key];
         const isHovered = hoveredIdx === idx;
         return (
           <div
-            key={div.id}
+            key={div.key}
             data-division-card
             onMouseEnter={() => setHoveredIdx(idx)}
             onMouseLeave={() => setHoveredIdx(null)}
             className="rounded-2xl p-7 transition-all duration-300 cursor-pointer"
             style={{
-              backgroundColor: isHovered ? '#222' : '#1A1A1A',
+              backgroundColor: '#FFFFFF',
               transform: isHovered ? 'scale(1.04)' : 'scale(1)',
               boxShadow: isHovered
-                ? '0 12px 40px rgba(244,180,0,0.15)'
-                : '0 4px 16px rgba(0,0,0,0.3)',
-              border: `1px solid ${isHovered ? 'rgba(244,180,0,0.35)' : 'rgba(255,255,255,0.05)'}`,
+                ? '0 16px 36px rgba(27,58,92,0.18)'
+                : '0 6px 18px rgba(27,58,92,0.1)',
+              border: `2px solid ${isHovered ? '#FF6B4A' : '#F2D9A8'}`,
             }}
           >
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300"
+              className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-colors duration-300"
               style={{
-                backgroundColor: isHovered ? '#F4B400' : 'rgba(244,180,0,0.15)',
+                backgroundColor: isHovered ? '#FF6B4A' : '#2E7D5B',
               }}
             >
               <Icon
-                className="w-6 h-6 transition-colors duration-300"
-                style={{ color: isHovered ? '#000' : '#F4B400' }}
+                className="w-6 h-6"
+                style={{ color: '#FFFFFF' }}
                 strokeWidth={2}
               />
             </div>
             <h3
               className="text-lg font-bold mb-2"
-              style={{ color: '#F4B400' }}
+              style={{ color: '#1B3A5C' }}
             >
-              {div.name}
+              {div.key}
             </h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed" style={{ color: '#5C7A8A' }}>
               {div.description}
             </p>
           </div>

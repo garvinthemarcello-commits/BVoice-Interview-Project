@@ -262,10 +262,10 @@ interface FlipCardFaceProps {
 }
 
 function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: FlipCardFaceProps) {
-  const borderColor = isSelected ? '#F4B400' : 'rgba(244,180,0,0.32)';
+  const borderColor = isSelected ? '#2F6FB0' : 'rgba(47,111,176,0.4)';
   const shadow = isSelected
-    ? '0 0 40px rgba(244,180,0,0.35)'
-    : '0 6px 22px rgba(0,0,0,0.55)';
+    ? '0 0 32px rgba(47,111,176,0.35)'
+    : '0 6px 22px rgba(27,58,92,0.3)';
 
   return (
     <div style={{ width: '100%', height: '100%', perspective: 900, position: 'relative' }}>
@@ -284,7 +284,7 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
           style={{
             ...faceStyle,
             borderRadius: 14,
-            backgroundColor: '#161616',
+            backgroundColor: '#FFFFFF',
             border: `2px solid ${borderColor}`,
             boxShadow: shadow,
             backfaceVisibility: 'hidden',
@@ -296,7 +296,7 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
             style={{
               position: 'absolute',
               inset: 6,
-              border: '1px solid rgba(244,180,0,0.22)',
+              border: '1px solid rgba(47,111,176,0.3)',
               borderRadius: 9,
               pointerEvents: 'none',
             }}
@@ -306,11 +306,11 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
             style={{
               position: 'absolute',
               inset: 12,
-              border: '1px solid rgba(244,180,0,0.14)',
+              border: '1px solid rgba(47,111,176,0.18)',
               borderRadius: 5,
               backgroundImage:
-                'repeating-linear-gradient(45deg, rgba(244,180,0,0.07) 0px, rgba(244,180,0,0.07) 1px, transparent 1px, transparent 9px), ' +
-                'repeating-linear-gradient(-45deg, rgba(244,180,0,0.07) 0px, rgba(244,180,0,0.07) 1px, transparent 1px, transparent 9px)',
+                'repeating-linear-gradient(45deg, rgba(47,111,176,0.1) 0px, rgba(47,111,176,0.1) 1px, transparent 1px, transparent 9px), ' +
+                'repeating-linear-gradient(-45deg, rgba(47,111,176,0.1) 0px, rgba(47,111,176,0.1) 1px, transparent 1px, transparent 9px)',
               pointerEvents: 'none',
             }}
           />
@@ -324,7 +324,7 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
               fontSize: 6.5,
               fontWeight: 600,
               letterSpacing: '0.03em',
-              color: 'rgba(244,180,0,0.55)',
+              color: 'rgba(47,111,176,0.65)',
             }}
           >
             BVoice Radio
@@ -336,9 +336,9 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
           style={{
             ...faceStyle,
             borderRadius: 14,
-            backgroundColor: '#1A1A1A',
-            border: '2px solid #F4B400',
-            boxShadow: '0 0 40px rgba(244,180,0,0.35)',
+            backgroundColor: '#FFFFFF',
+            border: '2px solid #2F6FB0',
+            boxShadow: '0 0 32px rgba(47,111,176,0.3)',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
@@ -352,7 +352,7 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
             style={{
               position: 'absolute',
               inset: 6,
-              border: '1px solid rgba(244,180,0,0.28)',
+              border: '1px solid rgba(47,111,176,0.3)',
               borderRadius: 9,
               pointerEvents: 'none',
             }}
@@ -361,7 +361,7 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
 
           <div
             style={{
-              backgroundColor: '#F4B400',
+              backgroundColor: '#FF6B4A',
               borderRadius: 10,
               width: 34,
               height: 34,
@@ -371,12 +371,12 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
               flexShrink: 0,
             }}
           >
-            <Icon size={18} className="text-black" strokeWidth={2.5} />
+            <Icon size={18} className="text-white" strokeWidth={2.5} />
           </div>
 
           <span
             style={{
-              color: '#F4B400',
+              color: '#1B3A5C',
               fontWeight: 800,
               fontSize: 12,
               letterSpacing: '0.1em',
@@ -387,17 +387,17 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
             {division.toUpperCase()}
           </span>
 
-          <div style={{ width: 24, height: 1, backgroundColor: 'rgba(244,180,0,0.4)', margin: '2px 0' }} />
+          <div style={{ width: 24, height: 1, backgroundColor: 'rgba(47,111,176,0.35)', margin: '2px 0' }} />
 
-          <span style={{ color: '#FFFFFF', fontWeight: 700, fontSize: 10, textAlign: 'center' }}>
+          <span style={{ color: '#2E7D5B', fontWeight: 700, fontSize: 10, textAlign: 'center' }}>
             Congratulations!
           </span>
-          <span style={{ color: '#9CA3AF', fontSize: 8.5, textAlign: 'center', lineHeight: 1.35 }}>
+          <span style={{ color: '#5C7A8A', fontSize: 8.5, textAlign: 'center', lineHeight: 1.35 }}>
             You have successfully passed the interview.
           </span>
-          <span style={{ color: '#9CA3AF', fontSize: 8.5, textAlign: 'center', lineHeight: 1.35 }}>
+          <span style={{ color: '#5C7A8A', fontSize: 8.5, textAlign: 'center', lineHeight: 1.35 }}>
             Welcome to the{' '}
-            <span style={{ color: '#F4B400', fontWeight: 700 }}>
+            <span style={{ color: '#2F6FB0', fontWeight: 700 }}>
               {division} Division
             </span>
             .
@@ -417,7 +417,7 @@ const faceStyle: React.CSSProperties = {
 };
 
 const tarotLabelStyle: React.CSSProperties = {
-  color: 'rgba(244,180,0,0.7)',
+  color: 'rgba(47,111,176,0.75)',
   fontWeight: 700,
   fontSize: 8,
   letterSpacing: '0.22em',

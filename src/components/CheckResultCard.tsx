@@ -44,23 +44,27 @@ export default function CheckResultCard() {
 
   return (
     <div
-      className="w-full max-w-sm rounded-2xl p-8 shadow-2xl"
-      style={{ backgroundColor: '#1A1A1A' }}
+      className="w-full max-w-sm rounded-2xl p-8"
+      style={{
+        backgroundColor: '#F2D9A8',
+        border: '2px solid #FF6B4A',
+        boxShadow: '0 14px 32px rgba(27,58,92,0.18)',
+      }}
     >
       {/* Card header */}
       <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: '#F4B400' }}
+          style={{ backgroundColor: '#FF6B4A' }}
         >
-          <Search className="w-4 h-4 text-black" strokeWidth={2.5} />
+          <Search className="w-4 h-4 text-white" strokeWidth={2.5} />
         </div>
-        <h2 className="text-white font-bold text-lg">Check Your Result</h2>
+        <h2 className="font-bold text-lg" style={{ color: '#1B3A5C' }}>Check Your Result</h2>
       </div>
 
       <form onSubmit={handleCheck} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-gray-400 text-xs font-semibold uppercase tracking-widest">
+          <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#5C7A8A' }}>
             Input Your NIM
           </label>
           <input
@@ -71,14 +75,15 @@ export default function CheckResultCard() {
               setError('');
             }}
             placeholder="e.g. 123"
-            className="w-full bg-white rounded-xl px-4 py-3 text-gray-800 text-sm font-medium placeholder-gray-400 outline-none transition-all duration-200"
-            onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(244,180,0,0.35)')}
+            className="w-full bg-white rounded-xl px-4 py-3 text-sm font-medium placeholder-gray-400 outline-none transition-all duration-200"
+            style={{ color: '#1B3A5C' }}
+            onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(46,125,91,0.35)')}
             onBlur={(e) => (e.target.style.boxShadow = 'none')}
           />
         </div>
 
         {error && (
-          <p className="text-sm leading-relaxed" style={{ color: '#F87171' }}>
+          <p className="text-sm leading-relaxed" style={{ color: '#C0392B' }}>
             {error}
           </p>
         )}
@@ -88,20 +93,20 @@ export default function CheckResultCard() {
           disabled={checking}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="w-full py-3.5 rounded-xl font-bold text-black text-sm tracking-wide transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full py-3.5 rounded-xl font-bold text-white text-sm tracking-wide transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
           style={{
-            backgroundColor: hovered ? '#FFD033' : '#F4B400',
+            backgroundColor: hovered ? '#E85A3B' : '#FF6B4A',
             transform: hovered && !checking ? 'translateY(-3px)' : 'translateY(0)',
             boxShadow: hovered
-              ? '0 8px 24px rgba(244,180,0,0.45)'
-              : '0 4px 12px rgba(244,180,0,0.25)',
+              ? '0 8px 24px rgba(255,107,74,0.45)'
+              : '0 4px 12px rgba(255,107,74,0.3)',
           }}
         >
           {checking ? 'Checking...' : 'Check Result'}
         </button>
       </form>
 
-      <p className="mt-5 text-center text-gray-600 text-xs leading-relaxed">
+      <p className="mt-5 text-center text-xs leading-relaxed" style={{ color: '#5C7A8A' }}>
         Enter your NIM to find your interview result.
       </p>
     </div>

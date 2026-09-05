@@ -72,7 +72,7 @@ export default function App() {
       }`}
       style={{
         fontFamily: "'Poppins', sans-serif",
-        backgroundColor: '#111111',
+        backgroundColor: '#F2D9A8',
       }}
     >
       <Navbar />

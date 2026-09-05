@@ -23,35 +23,35 @@ export default function ResultsPage({ division, candidateName }: Props) {
   }, []);
 
   return (
-    <div style={{ backgroundColor: '#111111', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(180deg, #7EC8E3 0%, #BFE1D9 30%, #F2D9A8 100%)', minHeight: '100vh' }}>
       {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
 
       {/* Header + card reveal */}
-      <section className="pt-28 pb-12 px-6" style={{ backgroundColor: '#111111' }}>
+      <section className="pt-28 pb-12 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <p
             className="text-xs font-semibold uppercase tracking-widest mb-3"
-            style={{ color: '#F4B400' }}
+            style={{ color: '#2E7D5B' }}
           >
             Interview Outcome
           </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight" style={{ color: '#1B3A5C' }}>
             RESULTS
           </h1>
           <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="h-1 w-12 rounded-full" style={{ backgroundColor: '#F4B400' }} />
-            <div className="h-1 w-3 rounded-full bg-white/20" />
+            <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: '#FF6B4A' }} />
+            <div className="h-1.5 w-3 rounded-full" style={{ backgroundColor: '#1B3A5C', opacity: 0.2 }} />
           </div>
 
           {candidateName && (
-            <p className="mt-8 text-2xl sm:text-3xl font-extrabold tracking-wide" style={{ color: '#34D399' }}>
+            <p className="mt-8 text-2xl sm:text-3xl font-extrabold tracking-wide" style={{ color: '#2E7D5B' }}>
               SELAMAT {candidateName.toUpperCase()}!
             </p>
           )}
 
-          <p className="mt-4 text-lg sm:text-xl text-white font-medium leading-relaxed">
+          <p className="mt-4 text-lg sm:text-xl font-medium leading-relaxed" style={{ color: '#1B3A5C' }}>
             Selamat, Kamu{' '}
-            <span style={{ color: '#34D399' }} className="font-extrabold tracking-wide">
+            <span style={{ color: '#2E7D5B' }} className="font-extrabold tracking-wide">
               LOLOS
             </span>{' '}
             skill Interview sebagai...

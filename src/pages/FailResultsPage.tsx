@@ -32,41 +32,41 @@ export default function FailResultsPage({ candidateName }: Props) {
   };
 
   return (
-    <div style={{ backgroundColor: '#111111', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(180deg, #7EC8E3 0%, #BFE1D9 25%, #F2D9A8 100%)', minHeight: '100vh' }}>
       {/* Header */}
-      <section className="pt-28 pb-10 px-6" style={{ backgroundColor: '#111111' }}>
+      <section className="pt-28 pb-10 px-6">
         <div className="max-w-2xl mx-auto text-center">
           <p
             className="text-xs font-semibold uppercase tracking-widest mb-3"
-            style={{ color: '#F4B400' }}
+            style={{ color: '#2E7D5B' }}
           >
             Interview Outcome
           </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight" style={{ color: '#1B3A5C' }}>
             HASIL
           </h1>
           <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="h-1 w-12 rounded-full" style={{ backgroundColor: '#F4B400' }} />
-            <div className="h-1 w-3 rounded-full bg-white/20" />
+            <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: '#FF6B4A' }} />
+            <div className="h-1.5 w-3 rounded-full" style={{ backgroundColor: '#1B3A5C', opacity: 0.2 }} />
           </div>
 
           {candidateName && (
-            <p className="mt-8 text-2xl sm:text-3xl font-extrabold tracking-wide text-white">
+            <p className="mt-8 text-2xl sm:text-3xl font-extrabold tracking-wide" style={{ color: '#1B3A5C' }}>
               {candidateName.toUpperCase()}
             </p>
           )}
 
-          <p className="mt-4 text-lg sm:text-xl text-white font-medium leading-relaxed">
+          <p className="mt-4 text-lg sm:text-xl font-medium leading-relaxed" style={{ color: '#1B3A5C' }}>
             Terima kasih telah mengikuti proses interview.
           </p>
-          <p className="mt-3 text-base sm:text-lg text-gray-300 leading-relaxed">
+          <p className="mt-3 text-base sm:text-lg leading-relaxed" style={{ color: '#2F4D63' }}>
             Maaf, kamu{' '}
-            <span style={{ color: '#F4B400' }} className="font-bold">
+            <span style={{ color: '#FF6B4A' }} className="font-bold">
               belum lolos
             </span>{' '}
             pada tahap rekrutmen ini.
           </p>
-          <p className="mt-5 text-sm text-gray-500 leading-relaxed max-w-md mx-auto">
+          <p className="mt-5 text-sm leading-relaxed max-w-md mx-auto" style={{ color: '#5C7A8A' }}>
             Kami sangat menghargai waktu dan usaha yang telah kamu berikan.
             <br />
             Kami berharap bisa bertemu lagi di kesempatan rekrutmen berikutnya.
@@ -79,9 +79,9 @@ export default function FailResultsPage({ candidateName }: Props) {
         <div
           className="max-w-md mx-auto rounded-2xl p-10 text-center"
           style={{
-            backgroundColor: '#1A1A1A',
-            border: '2px solid #F4B400',
-            boxShadow: '0 8px 36px rgba(244,180,0,0.15)',
+            backgroundColor: '#FFFFFF',
+            border: '2px solid #FF6B4A',
+            boxShadow: '0 10px 36px rgba(27,58,92,0.18)',
             animation: 'fadeInUp 0.7s ease both',
           }}
         >
@@ -89,32 +89,32 @@ export default function FailResultsPage({ candidateName }: Props) {
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
             style={{
-              backgroundColor: 'rgba(244,180,0,0.12)',
-              border: '1.5px solid rgba(244,180,0,0.35)',
+              backgroundColor: '#F2D9A8',
+              border: '1.5px solid rgba(255,107,74,0.4)',
             }}
           >
             <MailOpen
               className="w-10 h-10"
-              style={{ color: '#F4B400' }}
+              style={{ color: '#FF6B4A' }}
               strokeWidth={1.5}
             />
           </div>
 
           {/* Heading */}
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl mb-4" style={{ color: '#1B3A5C' }}>
             Better Luck Next Time
           </h2>
 
           {/* Body */}
-          <p className="text-gray-400 text-sm leading-relaxed mb-3">
+          <p className="text-sm leading-relaxed mb-3" style={{ color: '#5C7A8A' }}>
             Although you were not selected this time, we truly appreciate your
             interest in joining our team.
           </p>
-          <p className="text-gray-400 text-sm leading-relaxed mb-3">
+          <p className="text-sm leading-relaxed mb-3" style={{ color: '#5C7A8A' }}>
             Every interview is valuable experience, and we encourage you to
             continue developing your skills.
           </p>
-          <p className="text-gray-400 text-sm leading-relaxed mb-8">
+          <p className="text-sm leading-relaxed mb-8" style={{ color: '#5C7A8A' }}>
             Thank you for being part of this recruitment process.
           </p>
 
@@ -123,13 +123,13 @@ export default function FailResultsPage({ candidateName }: Props) {
             onClick={goHome}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-black text-sm tracking-wide transition-all duration-200"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-white text-sm tracking-wide transition-all duration-200"
             style={{
-              backgroundColor: hovered ? '#FFD033' : '#F4B400',
+              backgroundColor: hovered ? '#E85A3B' : '#FF6B4A',
               transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
               boxShadow: hovered
-                ? '0 8px 24px rgba(244,180,0,0.45)'
-                : '0 4px 12px rgba(244,180,0,0.25)',
+                ? '0 8px 24px rgba(255,107,74,0.45)'
+                : '0 4px 12px rgba(255,107,74,0.3)',
             }}
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
@@ -144,16 +144,16 @@ export default function FailResultsPage({ candidateName }: Props) {
           <div className="text-center mb-10">
             <p
               className="text-xs font-semibold uppercase tracking-widest mb-3"
-              style={{ color: '#F4B400' }}
+              style={{ color: '#2E7D5B' }}
             >
               Keep Going
             </p>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h3 className="font-display text-2xl sm:text-3xl tracking-tight" style={{ color: '#1B3A5C' }}>
               Keep Improving
             </h3>
             <div className="mt-5 flex items-center justify-center gap-2">
-              <div className="h-1 w-10 rounded-full" style={{ backgroundColor: '#F4B400' }} />
-              <div className="h-1 w-2 rounded-full bg-white/20" />
+              <div className="h-1.5 w-10 rounded-full" style={{ backgroundColor: '#FF6B4A' }} />
+              <div className="h-1.5 w-2 rounded-full" style={{ backgroundColor: '#1B3A5C', opacity: 0.2 }} />
             </div>
           </div>
 
@@ -165,31 +165,31 @@ export default function FailResultsPage({ candidateName }: Props) {
                   key={item.title}
                   className="rounded-2xl p-6 transition-all duration-300 hover:scale-[1.03]"
                   style={{
-                    backgroundColor: '#1A1A1A',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                    backgroundColor: '#FFFFFF',
+                    border: '2px solid #F2D9A8',
+                    boxShadow: '0 6px 18px rgba(27,58,92,0.1)',
                     animation: `fadeInUp 0.6s ease both`,
                     animationDelay: `${idx * 140 + 200}ms`,
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(244,180,0,0.35)';
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(244,180,0,0.15)';
+                    e.currentTarget.style.borderColor = '#FF6B4A';
+                    e.currentTarget.style.boxShadow = '0 14px 36px rgba(27,58,92,0.18)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+                    e.currentTarget.style.borderColor = '#F2D9A8';
+                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(27,58,92,0.1)';
                   }}
                 >
                   <div
                     className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
-                    style={{ backgroundColor: 'rgba(244,180,0,0.15)' }}
+                    style={{ backgroundColor: '#2E7D5B' }}
                   >
-                    <Icon className="w-5 h-5" style={{ color: '#F4B400' }} strokeWidth={2} />
+                    <Icon className="w-5 h-5" style={{ color: '#FFFFFF' }} strokeWidth={2} />
                   </div>
-                  <h4 className="text-base font-bold mb-1.5" style={{ color: '#F4B400' }}>
+                  <h4 className="text-base font-bold mb-1.5" style={{ color: '#1B3A5C' }}>
                     {item.title}
                   </h4>
-                  <p className="text-gray-400 text-sm leading-relaxed">
+                  <p className="text-sm leading-relaxed" style={{ color: '#5C7A8A' }}>
                     {item.description}
                   </p>
                 </div>
