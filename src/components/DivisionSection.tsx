@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useScrollReveal } from '@/lib/useScrollReveal';
-import { DIVISIONS, DIVISION_ICONS } from '@/lib/divisions';
+import { DIVISIONS, DIVISION_ICON_IMAGES } from '@/lib/divisions';
 
 export default function DivisionSection() {
   return (
@@ -42,7 +42,6 @@ function DivisionGrid() {
   return (
     <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {DIVISIONS.map((div, idx) => {
-        const Icon = DIVISION_ICONS[div.key];
         const isHovered = hoveredIdx === idx;
         return (
           <div
@@ -61,19 +60,21 @@ function DivisionGrid() {
             }}
           >
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-colors duration-300"
+              className="w-[104px] h-[104px] rounded-3xl flex items-center justify-center mb-5 transition-all duration-300"
               style={{
-                backgroundColor: isHovered ? '#FF6B4A' : '#2E7D5B',
+                backgroundColor: isHovered ? '#FFE4DB' : '#FBEEDA',
+                transform: isHovered ? 'scale(1.08) rotate(-2deg)' : 'scale(1)',
               }}
             >
-              <Icon
-                className="w-6 h-6"
-                style={{ color: '#FFFFFF' }}
-                strokeWidth={2}
+              <img
+                src={DIVISION_ICON_IMAGES[div.key]}
+                alt={`${div.key} icon`}
+                className="w-[84px] h-[84px] object-contain"
+                draggable={false}
               />
             </div>
             <h3
-              className="text-lg font-bold mb-2"
+              className="font-display text-xl tracking-wide mb-2"
               style={{ color: '#1B3A5C' }}
             >
               {div.key}

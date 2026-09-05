@@ -1,7 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
-import type { LucideIcon } from 'lucide-react';
-import { DIVISION_ICONS } from '@/lib/divisions';
+import { DIVISION_ICON_IMAGES } from '@/lib/divisions';
 import type { DivisionKey } from '@/lib/divisions';
 
 // ── Container geometry (vertical tarot cards) ─────────────────────────────
@@ -188,7 +187,7 @@ export default function CardRevealSequence({ division, onRevealComplete }: Props
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const Icon = DIVISION_ICONS[division] ?? DIVISION_ICONS['Marketing'];
+  const iconSrc = DIVISION_ICON_IMAGES[division] ?? DIVISION_ICON_IMAGES['Marketing'];
   const stageW = BASE_W * scale;
   const stageH = BASE_H * scale;
 
@@ -240,7 +239,7 @@ export default function CardRevealSequence({ division, onRevealComplete }: Props
                 <FlipCardFace
                   flipRef={(el) => { flipRefs.current[id] = el; }}
                   division={division}
-                  divisionIcon={Icon}
+                  divisionIconSrc={iconSrc}
                   isSelected={selectedId === id}
                 />
               </div>
@@ -257,11 +256,11 @@ export default function CardRevealSequence({ division, onRevealComplete }: Props
 interface FlipCardFaceProps {
   flipRef: (el: HTMLDivElement | null) => void;
   division: DivisionKey;
-  divisionIcon: LucideIcon;
+  divisionIconSrc: string;
   isSelected: boolean;
 }
 
-function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: FlipCardFaceProps) {
+function FlipCardFace({ flipRef, division, divisionIconSrc, isSelected }: FlipCardFaceProps) {
   const borderColor = isSelected ? '#2F6FB0' : 'rgba(47,111,176,0.4)';
   const shadow = isSelected
     ? '0 0 32px rgba(47,111,176,0.35)'
@@ -359,33 +358,12 @@ function FlipCardFace({ flipRef, division, divisionIcon: Icon, isSelected }: Fli
           />
           <span style={{ ...tarotLabelStyle, marginBottom: 2 }}>BVOICE RADIO</span>
 
-          <div
-            style={{
-              backgroundColor: '#FF6B4A',
-              borderRadius: 10,
-              width: 34,
-              height: 34,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Icon size={18} className="text-white" strokeWidth={2.5} />
-          </div>
-
-          <span
-            style={{
-              color: '#1B3A5C',
-              fontWeight: 800,
-              fontSize: 12,
-              letterSpacing: '0.1em',
-              textAlign: 'center',
-              lineHeight: 1.25,
-            }}
-          >
-            {division.toUpperCase()}
-          </span>
+          <img
+            src={divisionIconSrc}
+            alt={`${division} icon`}
+            draggable={false}
+            style={{ width: 68, height: 68, objectFit: 'contain', flexShrink: 0 }}
+          />
 
           <div style={{ width: 24, height: 1, backgroundColor: 'rgba(47,111,176,0.35)', margin: '2px 0' }} />
 

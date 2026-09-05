@@ -6,8 +6,6 @@
  * source of truth for candidate lookups — this is only the display copy.
  * If you edit division names/descriptions in the DB, mirror the change here.
  */
-import { Mic, Megaphone, Palette, Newspaper, Music, Headphones } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 export type DivisionKey =
   | 'Announcer'
@@ -17,13 +15,14 @@ export type DivisionKey =
   | 'Music Lister'
   | 'Operator';
 
-export const DIVISION_ICONS: Record<DivisionKey, LucideIcon> = {
-  Announcer: Mic,
-  Marketing: Megaphone,
-  Creative: Palette,
-  Reporter: Newspaper,
-  'Music Lister': Music,
-  Operator: Headphones,
+/** Custom illustrated badge art per division (public/icons/, see assets/icon/ for originals). */
+export const DIVISION_ICON_IMAGES: Record<DivisionKey, string> = {
+  Announcer: '/icons/announcer.png',
+  Marketing: '/icons/marketing.png',
+  Creative: '/icons/creative.png',
+  Reporter: '/icons/reporter.png',
+  'Music Lister': '/icons/music-lister.png',
+  Operator: '/icons/operator.png',
 };
 
 export interface DivisionInfo {
