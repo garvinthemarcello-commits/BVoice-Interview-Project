@@ -42,8 +42,7 @@ export default function ContactPerson() {
           className="rounded-2xl p-8 sm:p-10 transition-transform duration-300 hover:scale-[1.02]"
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #FF6B4A',
-            boxShadow: '0 14px 36px rgba(27,58,92,0.18)',
+            boxShadow: '0 14px 36px rgba(27,58,92,0.28)',
           }}
         >
           <div className="flex flex-col sm:flex-row items-center gap-6">
