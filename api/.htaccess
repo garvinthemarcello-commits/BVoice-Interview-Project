@@ -1,0 +1,23 @@
+RewriteEngine On
+
+# These rules are relative to this DocumentRoot (this api/ folder itself),
+# matching the extensionless /api/* routes the frontend/Vercel used before.
+
+# /api/health  ->  health.php
+RewriteRule ^health/?$ health.php [QSA,L]
+
+# /api/divisions  ->  divisions/index.php
+RewriteRule ^divisions/?$ divisions/index.php [QSA,L]
+
+# /api/divisions/5  ->  divisions/show.php?id=5
+# (the !-f guard keeps this from matching the directory-index rewrite to
+# divisions/index.php itself, which mod_dir resolves before this runs)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^divisions/([^/]+)/?$ divisions/show.php?id=$1 [QSA,L]
+
+# /api/candidates  ->  candidates/index.php
+RewriteRule ^candidates/?$ candidates/index.php [QSA,L]
+
+# /api/candidates/123  ->  candidates/show.php?nim=123
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^candidates/([^/]+)/?$ candidates/show.php?nim=$1 [QSA,L]
