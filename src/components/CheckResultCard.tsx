@@ -47,8 +47,7 @@ export default function CheckResultCard() {
       className="w-full max-w-sm rounded-2xl p-8"
       style={{
         backgroundColor: '#F2D9A8',
-        border: '2px solid #FF6B4A',
-        boxShadow: '0 14px 32px rgba(27,58,92,0.18)',
+        boxShadow: '0 14px 32px rgba(27,58,92,0.28)',
       }}
     >
       {/* Card header */}

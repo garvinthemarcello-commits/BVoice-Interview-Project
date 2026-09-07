@@ -166,17 +166,14 @@ export default function FailResultsPage({ candidateName }: Props) {
                   className="rounded-2xl p-6 transition-all duration-300 hover:scale-[1.03]"
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '2px solid #F2D9A8',
                     boxShadow: '0 6px 18px rgba(27,58,92,0.1)',
                     animation: `fadeInUp 0.6s ease both`,
                     animationDelay: `${idx * 140 + 200}ms`,
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#FF6B4A';
-                    e.currentTarget.style.boxShadow = '0 14px 36px rgba(27,58,92,0.18)';
+                    e.currentTarget.style.boxShadow = '0 14px 36px rgba(27,58,92,0.22)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#F2D9A8';
                     e.currentTarget.style.boxShadow = '0 6px 18px rgba(27,58,92,0.1)';
                   }}
                 >

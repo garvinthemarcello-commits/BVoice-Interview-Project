@@ -6,18 +6,25 @@
 
 ```
 ┌─────────────────────┐        HTTP (fetch)        ┌─────────────────────┐        SQL         ┌──────────────────┐
-│      Frontend        │  ───────────────────────▶  │   API (serverless)   │  ───────────────▶  │     Database       │
-│  React + TypeScript  │   GET /api/candidates/:nim │  Vercel functions     │   pg driver        │  Postgres           │
-│  Vite + Tailwind     │  ◀───────────────────────  │  (Node.js)             │  ◀───────────────  │  candidates,       │
+│      Frontend        │  ───────────────────────▶  │        API           │  ───────────────▶  │     Database       │
+│  React + TypeScript  │   GET /api/candidates/:nim │  PHP (plain scripts) │   PDO driver        │  MySQL              │
+│  Vite + Tailwind     │  ◀───────────────────────  │  routed via .htaccess │  ◀───────────────  │  candidates,       │
 │  GSAP animations      │      JSON { success, data }│                       │   rows / joins      │  divisions tables  │
 └─────────────────────┘                             └─────────────────────┘                     └──────────────────┘
 ```
 
-Frontend and API are one Vercel project: the React app is a static build, and
-each file under `api/` becomes its own serverless function. Everything is
-same-origin, so the frontend just calls relative paths like
-`/api/candidates/123` in both `vercel dev` and production — no proxy, no CORS
-config needed.
+The frontend is a static Vite build that calls relative paths like
+`/api/candidates/123`. In local dev those requests are proxied by Vite to an
+Apache vhost (see `vite.config.ts` / `api/.htaccess`); in production
+(Domainesia shared hosting) both the built frontend and the `api/` PHP
+scripts are served by the same Apache instance, so it's same-origin there
+too — no CORS config needed either way.
+
+> This is the `php-mysql-migration` branch: a rewrite of the original
+> Node/Vercel/Postgres backend to plain PHP + MySQL, targeting Domainesia
+> shared cPanel hosting (which doesn't run Node or give you a Postgres
+> instance). The original Vercel/Postgres implementation still lives on
+> `master`.
 
 ## Tech Stack
 
@@ -25,8 +32,8 @@ config needed.
 | --------- | ---------------------------------------------------------------------- |
 | Frontend  | React 18, TypeScript, Vite, Tailwind CSS, GSAP (animations), lucide-react (icons) |
 | API       | REST over HTTP, JSON, hand-rolled `fetch` client (no external HTTP lib) |
-| Backend   | Vercel serverless functions (Node.js), one file per route             |
-| Database  | Postgres (Neon / Vercel Postgres / Supabase), raw SQL via the `pg` driver |
+| Backend   | Plain PHP scripts (no framework), one file per route, routed via Apache `.htaccess` rewrites |
+| Database  | MySQL, raw SQL via PDO                                                |
 
 ## Project Structure
 
@@ -50,24 +57,27 @@ gsapworking/
 │       ├── DivisionSection.tsx       # Division grid (Announcer, Marketing, …)
 │       └── ContactPerson.tsx
 │
-├── api/                               # Backend (Vercel serverless functions)
-│   ├── health.js                     # GET /api/health
+├── api/                               # Backend (plain PHP, routed via .htaccess)
+│   ├── health.php                    # GET /api/health
+│   ├── config.example.php            # Template for api/config.php (gitignored)
 │   ├── divisions/
-│   │   ├── index.js                  # GET /api/divisions
-│   │   └── [id].js                   # GET /api/divisions/:id
+│   │   ├── index.php                 # GET /api/divisions
+│   │   └── show.php                  # GET /api/divisions/:id  (?id=)
 │   ├── candidates/
-│   │   ├── index.js                  # GET /api/candidates
-│   │   └── [nim].js                  # GET /api/candidates/:nim
+│   │   ├── index.php                 # GET /api/candidates
+│   │   └── show.php                  # GET /api/candidates/:nim  (?nim=)
+│   ├── .htaccess                     # Rewrites extensionless /api/* routes to the .php files above
 │   └── _lib/                         # Shared code (not routable — underscore prefix)
-│       ├── db.js                     # Postgres pool + Promise-based query helpers (all/get/run)
-│       ├── candidates.js             # Shared SELECT + row-mapping for the candidates resource
-│       └── http.js                   # methodGuard / notFound / serverError response helpers
+│       ├── db.php                    # PDO MySQL connection + query helpers (all/get/run)
+│       ├── candidates.php            # Shared SELECT + row-mapping for the candidates resource
+│       └── http.php                  # methodGuard / notFound / serverError response helpers
 │
 ├── db/
-│   ├── schema.sql                    # Table DDL (divisions, candidates)
-│   └── seed.js                       # Applies schema.sql, then populates divisions + sample candidates
+│   ├── schema.mysql.sql              # Table DDL (divisions, candidates) — MySQL
+│   ├── schema.sql                    # Original Postgres DDL, kept for reference (master branch)
+│   └── seed.php                      # Creates the DB if needed, applies schema.mysql.sql, seeds data
 │
-└── vite.config.ts                    # Vite build config (no dev proxy needed — same-origin)
+└── vite.config.ts                    # Dev-only proxy: /api/* → the local Apache vhost (see below)
 ```
 
 ## Frontend
@@ -94,7 +104,7 @@ directly (`routeFromHash`) and re-renders on `hashchange`. Three routes exist:
 
 Every endpoint responds with a consistent envelope: `{ success: boolean, data: ... }`
 (list endpoints also include `count`); errors follow `{ success: false, error: { message, code } }`,
-via the `notFound` / `serverError` helpers in `api/_lib/http.js`.
+via the `notFound` / `serverError` helpers in `api/_lib/http.php`.
 
 | Method | Endpoint                | Description                                  |
 | ------ | ------------------------ | --------------------------------------------- |
@@ -124,34 +134,33 @@ Example — `GET /api/candidates/123`:
 ```
 
 The database stores `full_name` / `passed` (boolean) / `division_id`, but
-`mapCandidateRow()` (`api/_lib/candidates.js`) translates that into the public
+`mapCandidateRow()` (`api/_lib/candidates.php`) translates that into the public
 shape above (`name`, `status: 'passed' | 'failed'`, nested `division` object)
 so the frontend's contract stays stable regardless of internal schema changes.
 
 ## Backend
 
-Each route is an independent serverless function — there's no shared server
-process or middleware chain. A request to e.g. `/api/candidates/123` is routed
-by Vercel directly to `api/candidates/[nim].js`, which:
+There's no framework and no shared server process — each route is a plain PHP
+script, reached via an Apache rewrite. A request to e.g. `/api/candidates/123`
+is rewritten by `api/.htaccess` to `candidates/show.php?nim=123`, which:
 
 ```
-handler(req, res)
-  → methodGuard (only GET allowed → 405 otherwise)
-  → query.get() from api/_lib/db.js (Postgres pool)
+show.php
+  → methodGuard() (only GET allowed → 405 otherwise)
+  → Query::get() from api/_lib/db.php (PDO MySQL)
   → mapCandidateRow() shapes the response
   → notFound() (404) or serverError() (500) on failure
 ```
 
-Files and folders under `api/_lib/` are not routable — the leading underscore
-tells Vercel to treat them as shared code rather than an endpoint, which is
-where the Postgres connection pool, query helpers, and response helpers live.
+Files and folders under `api/_lib/` are not routable (no rewrite rule points
+at them) — that's where the PDO connection, query helpers, and response
+helpers live. `api/config.php` (gitignored; copy from `api/config.example.php`)
+holds the MySQL host/name/user/pass — Domainesia (and cPanel MySQL generally)
+uses discrete credentials rather than a single connection string.
 
 ## Database
 
-Postgres — connect via `POSTGRES_URL` (or `DATABASE_URL`), read by
-`api/_lib/db.js` and `db/seed.js`. Any Postgres host works (Neon, Vercel
-Postgres, Supabase); the connection pool is created lazily and reused across
-warm invocations of the same function.
+MySQL, connected via PDO using the credentials in `api/config.php`.
 
 **Schema:**
 
@@ -174,38 +183,84 @@ divisions                          candidates
   candidate (`passed = false`) has `division_id = NULL`.
 - Indexes exist on `candidates.nim`, `candidates.division_id`, and
   `candidates.passed` for fast lookups (the NIM lookup is the hot path).
-- `db/seed.js` (`npm run db:seed`) applies `schema.sql`, then wipes and
-  repopulates both tables with the 6 fixed divisions and ~40 fake Indonesian
-  candidate records (mixed passed/failed) for demo/testing purposes. A few
-  short NIMs (`123`, `999`, `1234`, …) are kept at the top of the seed list
-  for quick manual testing.
+- `db/seed.php` (`php db/seed.php`) creates the database if it doesn't exist,
+  applies `db/schema.mysql.sql`, then wipes and repopulates both tables with
+  the 6 fixed divisions and ~40 fake Indonesian candidate records (mixed
+  passed/failed) for demo/testing purposes. A few short NIMs (`123`, `999`,
+  `1234`, …) are kept at the top of the seed list for quick manual testing.
+- **Domainesia production note:** the real production database on Domainesia
+  is an existing, differently-structured MySQL DB owned by a coworker.
+  `db/schema.mysql.sql` and the seed data are only the local-dev reference
+  schema — the queries in `api/_lib/` will need a follow-up pass once that
+  real production structure is known.
 
 ## Running Locally
 
-```bash
-npm install
-cp .env.example .env      # set POSTGRES_URL to a Postgres instance (e.g. a free Neon project)
-npm run db:seed           # apply schema + populate sample data
-npx vercel dev             # runs the Vite frontend AND the /api functions together
-```
+This branch needs Apache + PHP + MySQL, not a Node backend. The simplest way
+on Windows is XAMPP.
 
-Then open the printed local URL and try NIM `123` (passed → Marketing) or
-`999` (failed) from the seed data.
+1. **Install/open [XAMPP](https://www.apachefriends.org/)** and start the
+   **Apache** and **MySQL** modules from the XAMPP Control Panel.
+2. **Add a vhost** for the API so Apache serves `api/` on its own port,
+   matching what `vite.config.ts` proxies to. Add this to
+   `xampp/apache/conf/extra/httpd-vhosts.conf` (adjust the path to wherever
+   you cloned the repo):
+   ```apacheconf
+   <VirtualHost *:8080>
+       DocumentRoot "C:/path/to/gsapworking/api"
+       ServerName bvoice-api.local
+       <Directory "C:/path/to/gsapworking/api">
+           Options Indexes FollowSymLinks
+           AllowOverride All
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
+   Make sure `Listen 8080` is enabled in `xampp/apache/conf/httpd.conf` (or
+   in `httpd-ssl.conf` if you'd rather use a different port — just keep it in
+   sync with the `target` in `vite.config.ts`'s proxy config), then restart
+   Apache.
+3. **Set up the database:**
+   ```bash
+   cp api/config.example.php api/config.php   # fill in your local MySQL credentials
+   php db/seed.php                             # creates the DB, applies schema, seeds data
+   ```
+4. **Run the frontend:**
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-> `npm run dev` (plain Vite) still works for frontend-only styling/animation
-> work, but `/api/*` calls will 404 since Vite alone doesn't run the
-> serverless functions — use `vercel dev` whenever you need working API calls.
+Then open the printed local URL (typically `http://localhost:5173`) and try
+NIM `123` (passed → Marketing) or `999` (failed) from the seed data.
 
-### Environment Variables
+You can sanity-check the PHP side directly without going through Vite:
+`curl http://localhost:8080/health.php` should return
+`{"success":true,"data":{"status":"ok", ...}}`.
 
-| Variable       | Description                                          |
-| -------------- | ----------------------------------------------------- |
-| `POSTGRES_URL` | Postgres connection string (used by `api/` functions and `db/seed.js`) |
+### Environment / Config
 
-## Deploying
+Unlike the Postgres branch, there's no `.env` file — MySQL credentials live
+in `api/config.php` (gitignored, copy from `api/config.example.php`):
 
-Push to GitHub, then import the repo in Vercel (vercel.com → New Project).
-Vercel auto-detects the Vite build and the `api/` functions — no extra
-config needed. Add `POSTGRES_URL` under the project's Environment Variables
-before the first deploy, then run `npm run db:seed` once (locally, pointed
-at the same `POSTGRES_URL`) to populate the live database.
+| Key    | Description                          |
+| ------ | -------------------------------------- |
+| `host` | MySQL host (`localhost` for XAMPP)     |
+| `name` | Database name (`bvoice_radio`)         |
+| `user` | MySQL user (`root` for XAMPP)          |
+| `pass` | MySQL password (empty for XAMPP default) |
+
+## Deploying (Domainesia)
+
+1. Build the frontend: `npm run build` (outputs to `dist/`).
+2. Upload `dist/`'s contents and the `api/` folder to the hosting account
+   (e.g. `dist/` → `public_html/`, `api/` → `public_html/api/`), preserving
+   `api/.htaccess`.
+3. Create `api/config.php` on the server (from `api/config.example.php`)
+   with the real cPanel MySQL host/name/user/pass.
+4. Point the production database queries at the actual Domainesia schema —
+   see the production note under **Database** above; this repo's
+   `db/schema.mysql.sql` is the local-dev schema only, not what's live.
+5. Confirm `mod_rewrite` is enabled and `.htaccess` overrides are allowed on
+   the host (most shared cPanel hosts, Domainesia included, allow this by
+   default) so the extensionless `/api/*` routes resolve.

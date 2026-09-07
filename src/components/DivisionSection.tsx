@@ -54,9 +54,8 @@ function DivisionGrid() {
               backgroundColor: '#FFFFFF',
               transform: isHovered ? 'scale(1.04)' : 'scale(1)',
               boxShadow: isHovered
-                ? '0 16px 36px rgba(27,58,92,0.18)'
+                ? '0 16px 36px rgba(27,58,92,0.22)'
                 : '0 6px 18px rgba(27,58,92,0.1)',
-              border: `2px solid ${isHovered ? '#FF6B4A' : '#F2D9A8'}`,
             }}
           >
             <div
